@@ -1,7 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Heatmap, Marker } from '../components/Heatmap';
 import { Plot } from '../components/Plot';
-import { Card, Choice, Explain, Group, LabLayout, Metric, Metrics, Slider, Toggle, TryThis, Warn } from '../components/Controls';
+import { Card, Choice, Explain, Group, LabLayout, Metric, Metrics, Slider, Toggle, TryThis, TsButton, TsSection, Warn } from '../components/Controls';
+
+const DICE = (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM8.5 8.5h.01M15.5 8.5h.01M12 12h.01M8.5 15.5h.01M15.5 15.5h.01" />
+  </svg>
+);
 import { fft } from '../dsp/fft';
 import { MODS, ModName, constellation } from '../dsp/modulation';
 import { Rng } from '../dsp/random';
@@ -228,22 +234,28 @@ export default function RadarLab() {
   const rate = (N * c.k) / Tsym;
   const xMaxView = Math.max(dR * 8, Rmax * viewFrac);
 
-  const controls = (
+  const simulationTab = (
     <>
       <Group title="Radio band & numerology">
         <Choice label="Carrier fc" value={fcG} options={FC_OPTS} onChange={(v) => setFcG(v)} format={(v) => `${v} GHz`} hint="3.5 = FR1, 7–15 = FR3 (upper mid-band), 28–60 = mmWave, 140 = sub-THz" />
         <Choice label="Subcarrier spacing Δf" value={scs} options={SCS_OPTS} onChange={(v) => setScs(v)} format={(v) => `${v}k`} />
-        <Choice label="Subcarriers N (sets bandwidth)" value={N} options={N_OPTS} onChange={(v) => setN(v)} />
-        <Choice label="OFDM symbols M (sets observation time)" value={M} options={M_OPTS} onChange={(v) => setM(v)} />
+        <Choice label="Subcarriers N" hint="Sets the bandwidth B = N·Δf." value={N} options={N_OPTS} onChange={(v) => setN(v)} />
+        <Choice label="Symbols M" hint="OFDM symbols. Sets the observation time." value={M} options={M_OPTS} onChange={(v) => setM(v)} />
       </Group>
       <Group title="Data & processing">
         <Choice label="Modulation" value={mod} options={MODS} onChange={setMod} />
         <Choice label="Data removal" value={removal} options={REMOVALS} onChange={setRemoval} hint="Reciprocal cancels the data exactly but boosts noise on weak symbols. Matched keeps the data's amplitude ripple." />
-        <Toggle label="Hann window (lower sidelobes)" value={hann} onChange={setHann} />
+        <Toggle label="Hann window" hint="Lower sidelobes." value={hann} onChange={setHann} />
         <Toggle label="Model ICI from Doppler" value={ici} onChange={setIci} hint="Motion during one symbol breaks orthogonality: ICI ≈ (π·fD·T)²/3." />
-        <Slider label="SNR per resource element" value={snrDb} onChange={setSnrDb} min={-30} max={30} step={1} format={(v) => `${v} dB`} hint="Echo power vs noise in ONE grid cell, before processing gain." />
-        <button className="btn" onClick={() => setSeed(seed + 1)}>New data + noise</button>
+        <Slider label="SNR per RE" value={snrDb} onChange={setSnrDb} min={-30} max={30} step={1} format={(v) => `${v} dB`} hint="SNR per resource element: echo power vs noise in ONE grid cell, before processing gain." />
       </Group>
+      <TsSection title="Run">
+        <TsButton icon={DICE} label="New noise" onClick={() => setSeed(seed + 1)} title="New data + noise" />
+      </TsSection>
+    </>
+  );
+  const targetsTab = (
+    <>
       {targets.map((t, i) => (
         <Group key={i} title={`Target T${i + 1}`}>
           <Toggle label={<span style={{ color: COLORS[i], fontWeight: 600 }}>enabled</span>} value={t.on} onChange={(on) => setT(i, { on })} />
@@ -256,6 +268,10 @@ export default function RadarLab() {
           )}
         </Group>
       ))}
+    </>
+  );
+  const viewTab = (
+    <>
       <Group title="View">
         <Slider label="Range axis zoom" value={viewFrac} onChange={setViewFrac} min={0.005} max={1} log format={(v) => `0 – ${si(Math.max(dR * 8, Rmax * v), 'm')}`} />
       </Group>
@@ -263,7 +279,13 @@ export default function RadarLab() {
   );
 
   return (
-    <LabLayout controls={controls}>
+    <LabLayout
+      tabs={[
+        { id: 'sim', label: 'SIMULATION', content: simulationTab },
+        { id: 'targets', label: 'TARGETS', content: targetsTab },
+        { id: 'view', label: 'VIEW', content: viewTab },
+      ]}
+    >
       <div className="lab-intro">
         <h2>OFDM Radar: sensing with a communication signal (ISAC)</h2>
         <p>

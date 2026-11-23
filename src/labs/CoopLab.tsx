@@ -2,7 +2,7 @@ import { useDeferredValue, useMemo, useRef, useState } from 'react';
 import { Heatmap, Marker } from '../components/Heatmap';
 import { Plot, Series } from '../components/Plot';
 import { Shape, WorldMap } from '../components/WorldMap';
-import { Card, Choice, Explain, Group, LabLayout, Metric, Metrics, Slider, Toggle, TryThis, Warn } from '../components/Controls';
+import { Card, Explain, Metric, Metrics, Slider, ToolstripLayout, Toolstrip, TryThis, TsButton, TsCheck, TsCol, TsSection, TsSelect, TsSlider, Warn } from '../components/Controls';
 import {
   BaseStation,
   BsResult,
@@ -32,9 +32,25 @@ const M_OPTS = [8, 16, 32] as const;
 const NA_OPTS = [1, 2, 4, 8, 16] as const;
 const CP_RATIO = 144 / 2048;
 const FOV = (60 * Math.PI) / 180;
-const MAX_BS = 6;
 type RemovalLabel = 'Reciprocal (Y ÷ X)' | 'Matched (Y × X*)';
 const REMOVALS: RemovalLabel[] = ['Reciprocal (Y ÷ X)', 'Matched (Y × X*)'];
+const BS_OPTS = [1, 2, 3, 4, 5, 6] as const;
+type RcsPreset = 'Person' | 'Car' | 'Truck' | 'Custom';
+const RCS_PRESETS: RcsPreset[] = ['Person', 'Car', 'Truck', 'Custom'];
+const RCS_OF: Record<Exclude<RcsPreset, 'Custom'>, number> = { Person: 0, Car: 10, Truck: 20 };
+const rcsPreset = (rcs: number): RcsPreset => (rcs === 0 ? 'Person' : rcs === 10 ? 'Car' : rcs === 20 ? 'Truck' : 'Custom');
+
+const ico = (d: string) => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d={d} />
+  </svg>
+);
+const ICONS = {
+  reset: ico('M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4'),
+  dice: ico('M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM8.5 8.5h.01M15.5 8.5h.01M12 12h.01M8.5 15.5h.01M15.5 15.5h.01'),
+  heat: ico('M4 4h16v16H4zM4 9.3h16M4 14.6h16M9.3 4v16M14.6 4v16'),
+  rings: ico('M12 12m-8.5 0a8.5 8.5 0 1 0 17 0a8.5 8.5 0 1 0-17 0M12 12m-4.5 0a4.5 4.5 0 1 0 9 0a4.5 4.5 0 1 0-9 0M12 12L20 6'),
+};
 
 const OBJ_COLORS = ['#ff4d6d', '#ffb703', '#4cc9f0'];
 const METHOD_COLOR: Record<Method, string> = {
@@ -411,49 +427,88 @@ export default function CoopLab() {
   const rate = (N * cons.k) / d.Tsym;
   const recLoss = cfg.removal === 'reciprocal' ? reciprocalLossDb(cons) : 0;
 
-  const controls = (
+  const newNoiseBtn = <TsButton icon={ICONS.dice} label="New noise" onClick={() => setSeed(seed + 1)} title="New noise / data realisation" />;
+
+  const simulationTab = (
     <>
-      <Group title="Scene">
-        <Slider label="Area size" value={W} onChange={(v) => changeW(Math.round(v))} min={60} max={400} step={10} format={(v) => `${v} m × ${v} m`} hint="Drag stations (triangles) and objects (dots) on the map." />
-        <Slider label="Cooperating base stations" value={K} onChange={(v) => setK(Math.round(v))} min={1} max={MAX_BS} step={1} format={(v) => `${v}`} hint="Each one is a monostatic OFDM radar that hears its own echoes." />
-        <button className="btn" onClick={() => setBsPos(defaultBs(W))}>Reset station positions</button>
-      </Group>
-      <Group title="Radio & numerology (all stations)">
-        <Choice label="Carrier fc" value={fcG} options={FC_OPTS} onChange={(v) => setFcG(v)} format={(v) => `${v} GHz`} />
-        <Choice label="Subcarrier spacing Δf" value={scs} options={SCS_OPTS} onChange={(v) => setScs(v)} format={(v) => `${v}k`} hint="Sets the CP length, so the furthest usable range." />
-        <Choice label="Subcarriers N (bandwidth)" value={N} options={N_OPTS} onChange={(v) => setN(v)} />
-        <Choice label="OFDM symbols M" value={M} options={M_OPTS} onChange={(v) => setM(v)} />
-        <Choice label="Receive antennas Na (angle)" value={Na} options={NA_OPTS} onChange={(v) => setNa(v)} hint="Half-wavelength ULA facing the area centre, ±60° field of view." />
-        <Slider label="Transmit power" value={pt} onChange={setPt} min={0} max={46} step={1} format={(v) => `${v} dBm`} />
-      </Group>
-      <Group title="Data & processing">
-        <Choice label="Modulation" value={mod} options={MODS} onChange={setMod} />
-        <Choice label="Data removal" value={removal} options={REMOVALS} onChange={setRemoval} />
-        <Toggle label="Hann windows in the FFT stage" value={hann} onChange={setHann} hint="Lower side lobes → fewer ghosts. The fine stage never uses a window." />
-      </Group>
-      {objs.map((o, i) => (
-        <Group key={i} title={`Object T${i + 1}`}>
-          <Toggle label={<span style={{ color: OBJ_COLORS[i], fontWeight: 600 }}>enabled</span>} value={o.on} onChange={(on) => setObj(i, { on })} />
-          {o.on && (
-            <>
-              <div className="ctl-hint">Position ({o.x.toFixed(1)}, {o.y.toFixed(1)}) m: drag it on the map.</div>
-              <Slider label="Speed" value={o.speed} onChange={(v) => setObj(i, { speed: v })} min={0} max={40} step={0.5} format={(v) => `${v} m/s (${(v * 3.6).toFixed(0)} km/h)`} />
-              <Slider label="Heading" value={o.heading} onChange={(v) => setObj(i, { heading: v })} min={-180} max={180} step={5} format={(v) => `${v}°`} />
-              <Slider label="Radar cross-section" value={o.rcs} onChange={(v) => setObj(i, { rcs: v })} min={-20} max={20} step={1} format={(v) => `${v} dBsm`} hint="Person ≈ −5…0, car ≈ 10, truck ≈ 20." />
-            </>
-          )}
-        </Group>
-      ))}
-      <Group title="View">
-        <Toggle label="Show fused likelihood map" value={showHeat} onChange={setShowHeat} />
-        <Toggle label="Show measured range rings & bearings" value={showRings} onChange={setShowRings} />
-        <button className="btn" onClick={() => setSeed(seed + 1)}>New noise / data realisation</button>
-      </Group>
+      <TsSection title="Scene">
+        <TsCol>
+          <TsSlider label="Area" value={W} onChange={(v) => changeW(Math.round(v))} min={60} max={400} step={10} format={(v) => `${v} × ${v} m`} hint="Side of the square area. Drag stations (triangles) and objects (dots) on the map." />
+          <TsSelect label="Stations" value={K} options={BS_OPTS} onChange={setK} format={(v) => `${v} BS`} hint="Cooperating base stations. Each one is a monostatic OFDM radar that hears its own echoes." />
+        </TsCol>
+        <TsButton icon={ICONS.reset} label="Reset BS" onClick={() => setBsPos(defaultBs(W))} title="Reset station positions" />
+      </TsSection>
+      <TsSection title="Radio & numerology">
+        <TsCol>
+          <TsSelect label="Carrier fc" value={fcG} options={FC_OPTS} onChange={setFcG} format={(v) => `${v} GHz`} />
+          <TsSelect label="Spacing Δf" value={scs} options={SCS_OPTS} onChange={setScs} format={(v) => `${v} kHz`} hint="Sets the CP length, so the furthest usable range." />
+        </TsCol>
+        <TsCol>
+          <TsSelect label="Subcarriers N" value={N} options={N_OPTS} onChange={setN} hint="Sets the bandwidth B = N·Δf, so the range resolution." />
+          <TsSelect label="Symbols M" value={M} options={M_OPTS} onChange={setM} hint="OFDM symbols per frame. Sets the velocity resolution." />
+        </TsCol>
+        <TsCol>
+          <TsSelect label="Antennas Na" value={Na} options={NA_OPTS} onChange={setNa} hint="Half-wavelength ULA facing the area centre, ±60° field of view. Sets the angular resolution." />
+          <TsSlider label="Tx power" value={pt} onChange={setPt} min={0} max={46} step={1} format={(v) => `${v} dBm`} />
+        </TsCol>
+      </TsSection>
+      <TsSection title="Data & processing">
+        <TsCol>
+          <TsSelect label="Modulation" value={mod} options={MODS} onChange={setMod} />
+          <TsSelect label="Data removal" value={removal} options={REMOVALS} onChange={setRemoval} format={(v) => v.split(" (")[0]} hint="Reciprocal: Y ÷ X. Matched: Y × X*." />
+        </TsCol>
+        <TsCol>
+          <TsCheck label="Hann window" value={hann} onChange={setHann} hint="Hann windows in the FFT stage. Lower side lobes → fewer ghosts. The fine stage never uses a window." />
+        </TsCol>
+      </TsSection>
+      <TsSection title="Run">{newNoiseBtn}</TsSection>
     </>
   );
 
+  const objectsTab = (
+    <>
+      {objs.map((o, i) => (
+        <TsSection key={i} title={`Object T${i + 1}`}>
+          <TsCol>
+            <TsCheck label={<span style={{ color: OBJ_COLORS[i], fontWeight: 650 }}>T{i + 1} enabled</span>} value={o.on} onChange={(on) => setObj(i, { on })} />
+            <div className="ts-note">{o.on ? `(${o.x.toFixed(1)}, ${o.y.toFixed(1)}) m · drag on map` : 'off'}</div>
+            <TsSelect label="Preset" value={rcsPreset(o.rcs)} options={RCS_PRESETS} onChange={(p) => p !== 'Custom' && setObj(i, { rcs: RCS_OF[p] })} hint="Typical radar cross-sections." />
+          </TsCol>
+          {o.on && (
+            <TsCol>
+              <TsSlider label="Speed" value={o.speed} onChange={(v) => setObj(i, { speed: v })} min={0} max={40} step={0.5} format={(v) => `${v} m/s`} hint={`${(o.speed * 3.6).toFixed(0)} km/h`} />
+              <TsSlider label="Heading" value={o.heading} onChange={(v) => setObj(i, { heading: v })} min={-180} max={180} step={5} format={(v) => `${v}°`} hint="Counter-clockwise from +x." />
+              <TsSlider label="RCS" value={o.rcs} onChange={(v) => setObj(i, { rcs: v })} min={-20} max={20} step={1} format={(v) => `${v} dBsm`} hint="Person ≈ −5…0, car ≈ 10, truck ≈ 20." />
+            </TsCol>
+          )}
+        </TsSection>
+      ))}
+    </>
+  );
+
+  const viewTab = (
+    <>
+      <TsSection title="Map layers">
+        <TsButton icon={ICONS.heat} label="Likelihood" active={showHeat} onClick={() => setShowHeat(!showHeat)} title="Show fused likelihood map" />
+        <TsButton icon={ICONS.rings} label="Rings" active={showRings} onClick={() => setShowRings(!showRings)} title="Show measured range rings & bearings" />
+      </TsSection>
+      <TsSection title="Run">{newNoiseBtn}</TsSection>
+    </>
+  );
+
+  const toolstrip = (
+    <Toolstrip
+      tabs={[
+        { id: 'sim', label: 'SIMULATION', content: simulationTab },
+        { id: 'obj', label: 'OBJECTS', content: objectsTab },
+        { id: 'view', label: 'VIEW', content: viewTab },
+      ]}
+      right={<span className="ts-status">{K} stations · {fcG} GHz · B = {si(d.B, 'Hz')}</span>}
+    />
+  );
+
   return (
-    <LabLayout controls={controls}>
+    <ToolstripLayout toolstrip={toolstrip}>
       <div className="lab-intro">
         <h2>Cooperative ISAC localisation</h2>
         <p>
@@ -737,6 +792,6 @@ export default function CoopLab() {
           <li>Fusion uses greedy nearest-neighbour association. Real systems use global assignment and tracking (e.g. Kalman filters) over many frames.</li>
         </ul>
       </Explain>
-    </LabLayout>
+    </ToolstripLayout>
   );
 }

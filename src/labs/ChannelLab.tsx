@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Plot } from '../components/Plot';
-import { Card, Choice, Explain, Group, LabLayout, Metric, Metrics, Slider, Toggle, TryThis, Warn } from '../components/Controls';
+import { Card, Choice, Explain, Group, LabLayout, LabPagesContext, Metric, Metrics, Slider, Toggle, TryThis, Warn } from '../components/Controls';
 import { PROFILES, PROFILE_NAMES } from '../dsp/channels';
 import { Rng } from '../dsp/random';
 import { C, db, si, undb } from '../dsp/units';
@@ -11,18 +11,11 @@ const PARTS: Part[] = ['Link budget', 'Multipath', 'Mobility (Doppler)'];
 export default function ChannelLab() {
   const [part, setPart] = useState<Part>('Link budget');
   return (
-    <div>
-      <div className="subtabs">
-        {PARTS.map((p) => (
-          <button key={p} className={p === part ? 'on' : ''} onClick={() => setPart(p)}>
-            {p}
-          </button>
-        ))}
-      </div>
+    <LabPagesContext.Provider value={{ pages: PARTS, current: part, onChange: (p) => setPart(p as Part) }}>
       {part === 'Link budget' && <LinkBudget />}
       {part === 'Multipath' && <Multipath />}
       {part === 'Mobility (Doppler)' && <Mobility />}
-    </div>
+    </LabPagesContext.Provider>
   );
 }
 
@@ -95,7 +88,7 @@ function LinkBudget() {
       <Group title="Channel">
         <Slider label="Carrier frequency fc" value={fcG} onChange={setFcG} min={0.4} max={150} log format={(v) => si(v * 1e9, 'Hz')} />
         <Slider label="Distance d" value={d} onChange={setD} min={1} max={10000} log format={(v) => si(v, 'm')} />
-        <Choice label="Environment (path-loss exponent)" value={env} options={Object.keys(ENVS) as Env[]} onChange={setEnv} hint={`Power falls as 1/d^${n}. Free space = 2.`} />
+        <Choice label="Environment" value={env} options={Object.keys(ENVS) as Env[]} onChange={setEnv} hint={`Path-loss exponent: power falls as 1/d^${n}. Free space = 2.`} />
       </Group>
       <Group title="Receiver">
         <Slider label="Rx antenna gain Gr" value={gr} onChange={setGr} min={0} max={30} step={1} format={(v) => `${v} dBi`} />

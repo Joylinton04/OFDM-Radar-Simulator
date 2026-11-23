@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Home from './labs/Home';
 import SignalsLab from './labs/SignalsLab';
 import ModulationLab from './labs/ModulationLab';
@@ -56,6 +56,16 @@ export default function App() {
     window.dispatchEvent(new Event('themechange'));
   }, [theme]);
 
+  // Expose the header height so sticky toolbars can sit right below it.
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => document.documentElement.style.setProperty('--top-h', `${el.offsetHeight}px`));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const go = (t: TabId) => {
     window.location.hash = t;
     setTab(t);
@@ -64,7 +74,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="top">
+      <header className="top" ref={headerRef}>
         <div className="brand" onClick={() => go('home')}>
           <span className="logo">≋</span> OFDM Radar Lab
         </div>

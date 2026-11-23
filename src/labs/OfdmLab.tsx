@@ -274,16 +274,16 @@ export default function OfdmLab() {
     <>
       <Group title="Frequency resources">
         <Choice label="Subcarriers N" value={N} options={N_OPTS} onChange={(v) => setN(v)} hint="How many parallel narrow channels." />
-        <Choice label="Subcarrier spacing Δf (5G numerology)" value={scs} options={SCS_OPTS} onChange={(v) => setScs(v)} format={(v) => `${v} kHz`} hint="Δf = 15·2^μ kHz. Larger Δf = shorter symbols." />
+        <Choice label="Spacing Δf" value={scs} options={SCS_OPTS} onChange={(v) => setScs(v)} format={(v) => `${v} kHz`} hint="5G numerology: Δf = 15·2^μ kHz. Larger Δf = shorter symbols." />
       </Group>
       <Group title="Time resources">
-        <Choice label="Cyclic prefix (fraction of symbol)" value={cp} options={CP_OPTS} onChange={setCp} hint="Guard time against echoes. 5G normal CP ≈ 1/14." />
+        <Choice label="Cyclic prefix" value={cp} options={CP_OPTS} onChange={setCp} hint="Fraction of the symbol. Guard time against echoes. 5G normal CP ≈ 1/14." />
       </Group>
       <Group title="Data">
-        <Choice label="Modulation per subcarrier" value={mod} options={MODS} onChange={setMod} />
+        <Choice label="Modulation" hint="Modulation on every subcarrier." value={mod} options={MODS} onChange={setMod} />
       </Group>
       <Group title="Channel">
-        <Choice label="Multipath profile" value={profile} options={PROFILE_NAMES} onChange={setProfile} />
+        <Choice label="Profile" value={profile} options={PROFILE_NAMES} onChange={setProfile} />
         <Slider label="Stretch delays ×" value={scale} onChange={setScale} min={0.1} max={10} log format={(v) => `${v}× (max ${si(Math.max(...PROFILES[profile].d) * v * 1e-6, 's')})`} />
         <Slider label="SNR" value={snrDb} onChange={setSnrDb} min={0} max={45} step={0.5} format={(v) => `${v} dB`} />
         <button className="btn" onClick={() => setSeed(seed + 1)}>New channel + data</button>

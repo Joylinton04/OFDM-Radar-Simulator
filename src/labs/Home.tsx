@@ -7,6 +7,7 @@ const STEPS: { id: TabId; n: string; title: string; text: string; q: string }[] 
   { id: 'ofdm', n: '4', title: 'OFDM', text: 'Subcarriers, numerology Δf, cyclic prefix, resource grid, pilot channel estimation, PAPR.', q: 'Why does 4G/5G/Wi-Fi use OFDM?' },
   { id: 'radar', n: '5', title: 'OFDM Radar (ISAC)', text: 'Use the same OFDM signal to detect targets: range-Doppler maps, resolution, ambiguity, data removal.', q: 'How can a data signal also be a radar?' },
   { id: 'array', n: '6', title: 'Antenna Arrays', text: 'Beamforming, beamwidth, grating lobes, and serving two users in the same band.', q: 'How is space used as a resource?' },
+  { id: 'coop', n: '7', title: 'Cooperative ISAC Localisation', text: 'Several base stations sense the same objects and fuse range, angle and Doppler. Map fusion, WLS, CRLB, GDOP, Monte Carlo.', q: 'How do many stations locate an object better than one?' },
 ];
 
 export default function Home({ go }: { go: (t: TabId) => void }) {

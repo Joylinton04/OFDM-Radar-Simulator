@@ -6,8 +6,9 @@ import ChannelLab from './labs/ChannelLab';
 import OfdmLab from './labs/OfdmLab';
 import RadarLab from './labs/RadarLab';
 import ArrayLab from './labs/ArrayLab';
+import CoopLab from './labs/CoopLab';
 
-export type TabId = 'home' | 'signals' | 'modulation' | 'channel' | 'ofdm' | 'radar' | 'array';
+export type TabId = 'home' | 'signals' | 'modulation' | 'channel' | 'ofdm' | 'radar' | 'array' | 'coop';
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'home', label: 'Start' },
@@ -17,6 +18,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'ofdm', label: '4 · OFDM' },
   { id: 'radar', label: '5 · OFDM Radar' },
   { id: 'array', label: '6 · Antenna Arrays' },
+  { id: 'coop', label: '7 · Cooperative ISAC' },
 ];
 
 function readHash(): TabId {
@@ -89,6 +91,7 @@ export default function App() {
         {tab === 'ofdm' && <OfdmLab />}
         {tab === 'radar' && <RadarLab />}
         {tab === 'array' && <ArrayLab />}
+        {tab === 'coop' && <CoopLab />}
       </main>
     </div>
   );

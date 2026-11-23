@@ -39,6 +39,8 @@ export function setupCanvas(canvas: HTMLCanvasElement, w: number, h: number): Ca
   canvas.style.height = `${h}px`;
   const ctx = canvas.getContext('2d')!;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // Instrument-style labels: Archivo at a narrower width.
+  if ('fontStretch' in ctx) ctx.fontStretch = 'semi-condensed';
   return ctx;
 }
 

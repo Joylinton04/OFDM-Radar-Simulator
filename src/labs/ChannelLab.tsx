@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Plot } from '../components/Plot';
-import { Card, Choice, Explain, Group, LabLayout, LabPagesContext, Metric, Metrics, Slider, Toggle, TryThis, Warn } from '../components/Controls';
+import { Card, Choice, Explain, Group, LabIntro, LabLayout, LabPagesContext, Metric, Metrics, Slider, Toggle, TryThis, Warn } from '../components/Controls';
 import { PROFILES, PROFILE_NAMES } from '../dsp/channels';
 import { Rng } from '../dsp/random';
 import { C, db, si, undb } from '../dsp/units';
@@ -100,7 +100,7 @@ function LinkBudget() {
 
   return (
     <LabLayout controls={controls}>
-      <div className="lab-intro">
+      <LabIntro>
         <h2>The channel: link budget</h2>
         <p>
           The <b>channel</b> is everything between the transmitter's antenna and the receiver's antenna: air, distance,
@@ -112,7 +112,7 @@ function LinkBudget() {
           <span>Pt {pt} dBm</span>+<span>Gt {gt} dB</span>−<span className="ch">Path loss {pl.toFixed(1)} dB</span>+<span>Gr {gr} dB</span>=
           <span><b>Pr {pr.toFixed(1)} dBm</b></span>vs<span>Noise {noise.toFixed(1)} dBm</span>⇒<span><b>SNR {snr.toFixed(1)} dB</b></span>
         </div>
-      </div>
+      </LabIntro>
       <Metrics>
         <Metric label="Wavelength λ" value={si(lambda, 'm')} sub={`λ/2 antenna ≈ ${si(lambda / 2, 'm')}`} />
         <Metric label="Path loss" value={`${pl.toFixed(1)} dB`} sub={`power ÷ ${undb(pl).toExponential(1)}`} />
@@ -293,7 +293,7 @@ function Multipath() {
 
   return (
     <LabLayout controls={controls}>
-      <div className="lab-intro">
+      <LabIntro>
         <h2>The channel: multipath</h2>
         <p>
           The signal reaches the receiver along <b>several paths</b>: one direct, others bounced off buildings. Each
@@ -301,7 +301,7 @@ function Multipath() {
           symbols into each other (inter-symbol interference, ISI). <b>In frequency</b>, the copies add up at some
           frequencies and cancel at others, so the channel has dips (frequency-selective fading).
         </p>
-      </div>
+      </LabIntro>
       <Metrics>
         <Metric label="RMS delay spread τ_rms" value={si(sim.tauRms, 's')} />
         <Metric label="Max excess delay" value={si(sim.tauMax, 's')} />
@@ -446,14 +446,14 @@ function Mobility() {
 
   return (
     <LabLayout controls={controls}>
-      <div className="lab-intro">
+      <LabIntro>
         <h2>The channel: mobility and Doppler</h2>
         <p>
           When the transmitter, the receiver or the reflectors move, every echo's path length changes over time. Its phase rotates
           at the <b>Doppler frequency</b> f_D = v·fc / c. Echoes that add up now cancel a few centimetres later, so the received
           power <b>fades</b> up and down over time. The faster you move (or the higher fc), the faster it fades.
         </p>
-      </div>
+      </LabIntro>
       <Metrics>
         <Metric label="Max Doppler shift f_D" value={si(fD, 'Hz')} sub="v · fc / c" />
         <Metric label="Coherence time Tc" value={si(Tc, 's')} sub="≈ 0.423 / f_D" hint="How long the channel stays about the same." />

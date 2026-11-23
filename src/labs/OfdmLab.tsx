@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Heatmap } from '../components/Heatmap';
 import { Plot, Series } from '../components/Plot';
-import { Card, Choice, Explain, Group, LabLayout, Metric, Metrics, Slider, TryThis, Warn } from '../components/Controls';
+import { Card, Choice, Explain, Group, LabIntro, LabLayout, Metric, Metrics, Slider, TryThis, Warn } from '../components/Controls';
 import { PROFILES, PROFILE_NAMES } from '../dsp/channels';
 import { fft } from '../dsp/fft';
 import { MODS, ModName, bitErrors, constellation, demap, paprDb } from '../dsp/modulation';
@@ -296,7 +296,7 @@ export default function OfdmLab() {
 
   return (
     <LabLayout controls={controls}>
-      <div className="lab-intro">
+      <LabIntro>
         <h2>OFDM: many slow subcarriers instead of one fast carrier</h2>
         <p>
           OFDM splits the bandwidth B into <b>N subcarriers</b> spaced <b>Δf</b> apart. Each carries one QAM symbol per OFDM
@@ -308,7 +308,7 @@ export default function OfdmLab() {
           <span>QAM symbols on N×{M} grid</span>→<span>IFFT</span>→<span>Add CP</span>→<span className="ch">Multipath + noise</span>→
           <span>Remove CP</span>→<span>FFT</span>→<span>Divide by Ĥ[k]</span>→<span>Decide</span>
         </div>
-      </div>
+      </LabIntro>
       <Metrics>
         <Metric label="Bandwidth B = N·Δf" value={si(B, 'Hz')} />
         <Metric label="Symbol time T = 1/Δf" value={si(T, 's')} />

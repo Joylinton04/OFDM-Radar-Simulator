@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Plot, Series } from '../components/Plot';
-import { Card, Choice, Explain, Group, LabLayout, Metric, Metrics, Slider, Toggle, TryThis } from '../components/Controls';
+import { Card, Choice, Explain, Group, LabIntro, LabLayout, Metric, Metrics, Slider, Toggle, TryThis } from '../components/Controls';
 import { fft } from '../dsp/fft';
 import { convolve, rrc } from '../dsp/filters';
 import { MODS, ModName, bitErrors, constellation, demap, theoreticalBer } from '../dsp/modulation';
@@ -222,7 +222,7 @@ export default function ModulationLab() {
 
   return (
     <LabLayout controls={controls}>
-      <div className="lab-intro">
+      <LabIntro>
         <h2>Modulation &amp; Transmission</h2>
         <p>
           How do bits actually become a radio wave? Follow the chain left to right. Each stage below has its own plot.
@@ -240,7 +240,7 @@ export default function ModulationLab() {
             </code>
           ))}
         </div>
-      </div>
+      </LabIntro>
 
       <Metrics>
         <Metric label="Bit rate" value={si(Rb, 'bit/s')} sub={`= Rs × ${k}`} />

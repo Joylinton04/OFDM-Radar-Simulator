@@ -33,15 +33,15 @@ export function PolarPlot({ series, floorDb = -40, height = 300, title, spokes =
     const cx = width / 2;
     const cy = top + R + 6;
     const fg = col('var(--text-muted)', '#666');
-    ctx.font = '11px ui-sans-serif, system-ui, sans-serif';
+    ctx.font = '11px Archivo, ui-sans-serif, system-ui, sans-serif';
     ctx.textBaseline = 'middle';
 
     if (title) {
       ctx.fillStyle = col('var(--text)', '#222');
-      ctx.font = '600 12.5px ui-sans-serif, system-ui, sans-serif';
+      ctx.font = '600 12.5px Archivo, ui-sans-serif, system-ui, sans-serif';
       ctx.textAlign = 'left';
       ctx.fillText(title, 10, 13);
-      ctx.font = '11px ui-sans-serif, system-ui, sans-serif';
+      ctx.font = '11px Archivo, ui-sans-serif, system-ui, sans-serif';
     }
 
     // Polar angle: 0° points up (broadside). Screen angle = -90° + θ.

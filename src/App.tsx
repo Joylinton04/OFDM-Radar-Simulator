@@ -10,15 +10,15 @@ import CoopLab from './labs/CoopLab';
 
 export type TabId = 'home' | 'signals' | 'modulation' | 'channel' | 'ofdm' | 'radar' | 'array' | 'coop';
 
-const TABS: { id: TabId; label: string }[] = [
+const TABS: { id: TabId; n?: number; label: string }[] = [
   { id: 'home', label: 'Start' },
-  { id: 'signals', label: '1 · Signals & Bandwidth' },
-  { id: 'modulation', label: '2 · Modulation' },
-  { id: 'channel', label: '3 · Channel' },
-  { id: 'ofdm', label: '4 · OFDM' },
-  { id: 'radar', label: '5 · OFDM Radar' },
-  { id: 'array', label: '6 · Antenna Arrays' },
-  { id: 'coop', label: '7 · Cooperative ISAC' },
+  { id: 'signals', n: 1, label: 'Signals' },
+  { id: 'modulation', n: 2, label: 'Modulation' },
+  { id: 'channel', n: 3, label: 'Channel' },
+  { id: 'ofdm', n: 4, label: 'OFDM' },
+  { id: 'radar', n: 5, label: 'OFDM radar' },
+  { id: 'array', n: 6, label: 'Arrays' },
+  { id: 'coop', n: 7, label: 'Cooperative ISAC' },
 ];
 
 function readHash(): TabId {
@@ -76,11 +76,15 @@ export default function App() {
     <div className="app">
       <header className="top" ref={headerRef}>
         <div className="brand" onClick={() => go('home')}>
-          <span className="logo">≋</span> OFDM Radar Lab
+          <svg className="logo" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M2 12h3l2-7 3 14 3-10 2 6 2-3h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          OFDM Radar Lab
         </div>
         <nav className="tabs">
           {TABS.map((t) => (
-            <button key={t.id} className={t.id === tab ? 'on' : ''} onClick={() => go(t.id)}>
+            <button key={t.id} className={t.id === tab ? 'on' : ''} aria-current={t.id === tab ? 'page' : undefined} onClick={() => go(t.id)}>
+              {t.n && <span className="tab-n">{t.n}</span>}
               {t.label}
             </button>
           ))}

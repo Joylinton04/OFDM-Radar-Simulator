@@ -98,7 +98,7 @@ export function WorldMap(p: WorldMapProps) {
     }
 
     // grid + ticks
-    ctx.font = '11px ui-sans-serif, system-ui, sans-serif';
+    ctx.font = '11px Archivo, ui-sans-serif, system-ui, sans-serif';
     ctx.textBaseline = 'middle';
     ctx.strokeStyle = col(p.heat ? 'rgba(255,255,255,0.12)' : 'var(--grid)', '#ddd');
     ctx.lineWidth = 1;
@@ -130,10 +130,10 @@ export function WorldMap(p: WorldMapProps) {
     ctx.restore();
     if (p.title) {
       ctx.fillStyle = col('var(--text)', '#222');
-      ctx.font = '600 12.5px ui-sans-serif, system-ui, sans-serif';
+      ctx.font = '600 12.5px Archivo, ui-sans-serif, system-ui, sans-serif';
       ctx.textAlign = 'left';
       ctx.fillText(p.title, l, 13);
-      ctx.font = '11px ui-sans-serif, system-ui, sans-serif';
+      ctx.font = '11px Archivo, ui-sans-serif, system-ui, sans-serif';
     }
 
     // shapes
@@ -239,7 +239,7 @@ export function WorldMap(p: WorldMapProps) {
           }
         }
         if (s.label) {
-          ctx.font = '600 11px ui-sans-serif, system-ui, sans-serif';
+          ctx.font = '600 11px Archivo, ui-sans-serif, system-ui, sans-serif';
           ctx.textAlign = 'left';
           ctx.lineWidth = 3;
           ctx.strokeStyle = col('var(--surface)', '#fff');

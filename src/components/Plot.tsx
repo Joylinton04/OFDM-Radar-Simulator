@@ -125,16 +125,16 @@ export function Plot(props: PlotProps) {
       return top + ph - ((vv - y0) / (y1 - y0)) * ph;
     };
 
-    ctx.font = '11px ui-sans-serif, system-ui, sans-serif';
+    ctx.font = '11px Archivo, ui-sans-serif, system-ui, sans-serif';
     ctx.textBaseline = 'middle';
 
     // Title
     if (props.title) {
       ctx.fillStyle = col('var(--text)', '#222');
-      ctx.font = '600 12.5px ui-sans-serif, system-ui, sans-serif';
+      ctx.font = '600 12.5px Archivo, ui-sans-serif, system-ui, sans-serif';
       ctx.textAlign = 'left';
       ctx.fillText(props.title, l, 13);
-      ctx.font = '11px ui-sans-serif, system-ui, sans-serif';
+      ctx.font = '11px Archivo, ui-sans-serif, system-ui, sans-serif';
     }
 
     // Bands
@@ -299,7 +299,7 @@ export function Plot(props: PlotProps) {
     // Legend
     const labelled = series.filter((s) => s.label);
     if (legend && labelled.length) {
-      ctx.font = '11px ui-sans-serif, system-ui, sans-serif';
+      ctx.font = '11px Archivo, ui-sans-serif, system-ui, sans-serif';
       ctx.textAlign = 'left';
       let lx = left + pw - 8;
       const widths = labelled.map((s) => ctx.measureText(s.label!).width + 22);

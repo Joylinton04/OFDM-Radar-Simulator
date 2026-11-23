@@ -2,7 +2,7 @@ import { useDeferredValue, useMemo, useRef, useState } from 'react';
 import { Heatmap, Marker } from '../components/Heatmap';
 import { Plot, Series } from '../components/Plot';
 import { Shape, WorldMap } from '../components/WorldMap';
-import { Card, Explain, Metric, Metrics, Slider, ToolstripLayout, Toolstrip, TryThis, TsButton, TsCheck, TsCol, TsSection, TsSelect, TsSlider, Warn } from '../components/Controls';
+import { Card, Explain, LabIntro, Metric, Metrics, Slider, Toolstrip, ToolstripLayout, TryThis, TsButton, TsCheck, TsCol, TsSection, TsSelect, TsSlider, Warn } from '../components/Controls';
 import {
   BaseStation,
   BsResult,
@@ -509,14 +509,14 @@ export default function CoopLab() {
 
   return (
     <ToolstripLayout toolstrip={toolstrip}>
-      <div className="lab-intro">
+      <LabIntro>
         <h2>Cooperative ISAC localisation</h2>
         <p>
           Several base stations each run the OFDM radar from Lab 5 on their own echoes, measuring <b>range</b> (from bandwidth),
           <b> angle</b> (from the antenna array) and <b>radial speed</b> (from Doppler). A fusion centre combines their
           measurements to locate each object far more precisely than any single station can.
         </p>
-      </div>
+      </LabIntro>
 
       {warnings.map((w, i) => (
         <Warn key={i}>{w}</Warn>

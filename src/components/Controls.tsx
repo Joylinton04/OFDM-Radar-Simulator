@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useContext, useId, useState } from 'react';
+import { ReactNode, createContext, useContext, useId, useLayoutEffect, useRef, useState } from 'react';
 
 /** True inside a toolstrip, where the basic controls render in their compact form. */
 const InToolstrip = createContext(false);
@@ -128,12 +128,13 @@ export function Group({ title, children }: { title: string; children: ReactNode 
 
 export type Tone = 'good' | 'warn' | 'bad' | undefined;
 
+/** One instrument readout. The secondary line (`sub`, `hint`) shows on hover, to keep the strip quiet. */
 export function Metric({ label, value, sub, tone, hint }: { label: string; value: string; sub?: string; tone?: Tone; hint?: string }) {
+  const tip = [sub, hint].filter(Boolean).join('\n');
   return (
-    <div className={`metric ${tone ?? ''}`} title={hint}>
+    <div className={`metric ${tone ?? ''} ${tip ? 'has-tip' : ''}`} title={tip || undefined} tabIndex={tip ? 0 : undefined}>
       <div className="metric-label">{label}</div>
       <div className="metric-value">{value}</div>
-      {sub && <div className="metric-sub">{sub}</div>}
     </div>
   );
 }
@@ -142,17 +143,59 @@ export function Metrics({ children }: { children: ReactNode }) {
   return <div className="metrics">{children}</div>;
 }
 
+/**
+ * A panel. Captions and plot notes inside it stay hidden until the reader
+ * opens them with the (i) button, which only appears when there are some.
+ */
 export function Card({ title, children, right }: { title?: string; children: ReactNode; right?: ReactNode }) {
+  const [notes, setNotes] = useState(false);
   return (
-    <section className="card">
+    <section className={`card ${notes ? 'notes-open' : ''}`}>
       {(title || right) && (
         <div className="card-head">
           {title && <h3>{title}</h3>}
-          {right}
+          <div className="card-tools">
+            {right}
+            <button className="card-info" aria-pressed={notes} title={notes ? 'Hide notes' : 'Show notes'} onClick={() => setNotes(!notes)}>
+              i
+            </button>
+          </div>
         </div>
       )}
       {children}
     </section>
+  );
+}
+
+/**
+ * Lab title and intro. The intro is cut to five lines until the reader asks for
+ * more; the button only appears when something is actually cut.
+ */
+export function LabIntro({ children }: { children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const [cut, setCut] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || open) return;
+    const check = () => {
+      const ps = el.querySelectorAll('p');
+      setCut(ps.length > 1 || (ps.length === 1 && ps[0].scrollHeight > ps[0].clientHeight + 1));
+    };
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [open]);
+  return (
+    <div className={`lab-intro ${open ? 'open' : ''}`} ref={ref}>
+      {children}
+      {(cut || open) && (
+        <button className="more" aria-expanded={open} onClick={() => setOpen(!open)}>
+          {open ? 'Less' : 'More'}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -172,14 +215,13 @@ export function Explain({ title = 'What is going on?', children, open = false }:
 /** "Try this" experiments list. */
 export function TryThis({ items }: { items: ReactNode[] }) {
   return (
-    <div className="try">
-      <div className="try-title">Try this</div>
-      <ol>
+    <Explain title={`Try this: ${items.length} experiments`}>
+      <ol className="try-list">
         {items.map((it, i) => (
           <li key={i}>{it}</li>
         ))}
       </ol>
-    </div>
+    </Explain>
   );
 }
 

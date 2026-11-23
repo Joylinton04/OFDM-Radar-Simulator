@@ -78,14 +78,14 @@ export function Heatmap(p: HeatmapProps) {
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(off, sx0, 0, Math.max(1, sx1 - sx0), p.rows, l, t, pw, ph);
 
-    ctx.font = '11px ui-sans-serif, system-ui, sans-serif';
+    ctx.font = '11px Archivo, ui-sans-serif, system-ui, sans-serif';
     ctx.textBaseline = 'middle';
     if (p.title) {
       ctx.fillStyle = col('var(--text)', '#222');
-      ctx.font = '600 12.5px ui-sans-serif, system-ui, sans-serif';
+      ctx.font = '600 12.5px Archivo, ui-sans-serif, system-ui, sans-serif';
       ctx.textAlign = 'left';
       ctx.fillText(p.title, l, 13);
-      ctx.font = '11px ui-sans-serif, system-ui, sans-serif';
+      ctx.font = '11px Archivo, ui-sans-serif, system-ui, sans-serif';
     }
     ctx.strokeStyle = col('var(--border-strong)', '#999');
     ctx.strokeRect(l + 0.5, t + 0.5, pw, ph);
@@ -137,7 +137,7 @@ export function Heatmap(p: HeatmapProps) {
       if (m.label) {
         ctx.fillStyle = m.color ?? '#ff4d6d';
         ctx.textAlign = 'left';
-        ctx.font = '600 11px ui-sans-serif, system-ui, sans-serif';
+        ctx.font = '600 11px Archivo, ui-sans-serif, system-ui, sans-serif';
         ctx.fillText(m.label, px + 10, py - 9);
       }
     }

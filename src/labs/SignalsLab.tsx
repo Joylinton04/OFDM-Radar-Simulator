@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Plot } from '../components/Plot';
-import { Card, Choice, Explain, Group, LabLayout, Metric, Metrics, Slider, Toggle, TryThis } from '../components/Controls';
+import { Card, Choice, Explain, Group, LabIntro, LabLayout, Metric, Metrics, Slider, Toggle, TryThis } from '../components/Controls';
 import { fft } from '../dsp/fft';
 import { Rng } from '../dsp/random';
 import { C, db, si } from '../dsp/units';
@@ -212,7 +212,7 @@ export default function SignalsLab() {
 
   return (
     <LabLayout controls={controls}>
-      <div className="lab-intro">
+      <LabIntro>
         <h2>Signals &amp; Bandwidth</h2>
         <p>
           Every signal is a <b>sum of sine waves at different frequencies</b>. The list of those frequencies and their
@@ -220,7 +220,7 @@ export default function SignalsLab() {
           frequencies, and the width of that range is its <b>bandwidth</b>. Cut off the high frequencies and the sharp
           edges in time disappear.
         </p>
-      </div>
+      </LabIntro>
 
       <Metrics>
         <Metric label="Channel bandwidth" value={si(bw, 'Hz')} />

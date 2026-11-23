@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Heatmap, Marker } from '../components/Heatmap';
 import { Plot } from '../components/Plot';
-import { Card, Choice, Explain, Group, LabLayout, Metric, Metrics, Slider, Toggle, TryThis, TsButton, TsSection, Warn } from '../components/Controls';
+import { Card, Choice, Explain, Group, LabIntro, LabLayout, Metric, Metrics, Slider, Toggle, TryThis, TsButton, TsSection, Warn } from '../components/Controls';
 
 const DICE = (
   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -286,7 +286,7 @@ export default function RadarLab() {
         { id: 'view', label: 'VIEW', content: viewTab },
       ]}
     >
-      <div className="lab-intro">
+      <LabIntro>
         <h2>OFDM Radar: sensing with a communication signal (ISAC)</h2>
         <p>
           The base station sends its normal OFDM data and listens for <b>echoes</b> (monostatic sensing). It knows what it sent, so it
@@ -298,7 +298,7 @@ export default function RadarLab() {
           <span>Tx grid X[n,m]</span>→<span className="ch">Echoes from targets + noise</span>→<span>Rx grid Y[n,m]</span>→
           <span>Remove data: Y/X</span>→<span>IFFT over n → range</span>→<span>FFT over m → velocity</span>→<span>Detect peaks</span>
         </div>
-      </div>
+      </LabIntro>
       <Metrics>
         <Metric label="Bandwidth B = N·Δf" value={si(B, 'Hz')} />
         <Metric label="Range resolution" value={si(dR, 'm')} sub="c / 2B" />

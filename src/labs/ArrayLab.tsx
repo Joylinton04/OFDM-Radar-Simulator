@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Plot } from '../components/Plot';
 import { PolarPlot } from '../components/PolarPlot';
-import { Card, Choice, Explain, Group, LabLayout, Metric, Metrics, Slider, Toggle, TryThis, Warn } from '../components/Controls';
+import { Card, Choice, Explain, Group, LabIntro, LabLayout, Metric, Metrics, Slider, Toggle, TryThis, Warn } from '../components/Controls';
 import { C, db, si } from '../dsp/units';
 
 type Taper = 'Uniform' | 'Hann' | 'Chebyshev-like (−30 dB)';
@@ -96,7 +96,7 @@ export default function ArrayLab() {
 
   return (
     <LabLayout controls={controls}>
-      <div className="lab-intro">
+      <LabIntro>
         <h2>Antenna arrays: space as a resource</h2>
         <p>
           Time and frequency aren't the only resources. With many antennas, the transmitter can give each one a slightly
@@ -104,7 +104,7 @@ export default function ArrayLab() {
           It concentrates power (more SNR), lets several users share the same time-frequency resources if they're in
           different directions (spatial multiplexing, MIMO), and for sensing it measures <b>angle</b> (AoA/AoD).
         </p>
-      </div>
+      </LabIntro>
       <Metrics>
         <Metric label="Array gain" value={`${gainDb.toFixed(1)} dB`} sub={`≈ 10·log₁₀(N) = ${db(n).toFixed(1)} dB uniform`} />
         <Metric label="Half-power beamwidth" value={`${hpbw.toFixed(1)}°`} sub="≈ 0.886·λ / (N·d·cosθ)" />
